@@ -115,12 +115,19 @@ class Node(object):
 
     ################################################################################################################
 
-    def routing(self, key, routing_counter):
+    def routing(self, key, routing_counter, counters_list):
 
         if self.node_id == key:
+            counters_list.append(routing_counter)
             return self
 
         if self.distance(self.node_id, key) <= self.distance(self.successor.node_id, key):
+            print(f"\nThe the {routing_counter}-th router")
+            print(f"From {self.node_id} to {self.successor.node_id}")
+            with open('routingPath.txt', 'a') as file:
+                file.write(f"{self.node_id} {self.successor.node_id}\n")
+            print("\n")
+            counters_list.append(routing_counter)
             return self.successor
         else:
             # temp_node = self.closest_preceding_node(self, key)
@@ -129,8 +136,10 @@ class Node(object):
             print(f"From {self.node_id} to {succ.node_id}")
             print("\n")
             with open('routingPath.txt', 'a') as file:
-                file.write(f"{self.node_id},{succ.node_id}\n")
-            return succ.routing(key, routing_counter+1)
+                file.write(f"{self.node_id} {succ.node_id}\n")
+            ans = succ.routing(key, routing_counter + 1, counters_list)
+
+            return ans
 
     ################################################################################################################
 

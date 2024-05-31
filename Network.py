@@ -25,6 +25,7 @@ class Network:
         self.ring_size = 2 ** m
         self.insert_first_node(node_ids[0])
         self.first_node = self.nodes[0]
+        self.keys_map = {}
         node_ids.pop(0)
 
     def __str__(self):
@@ -151,6 +152,43 @@ class Network:
                 f'[+]Found \'{data}\' in node {node.node_id} with key {hashed_key}')
         else:
             print(f'[-]\'{data}\' not exist in the network')
+
+    def experiment(self, data ,counters_list):
+        try:
+
+            node = self.keys_map[data]
+            with open('routingPath.txt', 'a') as file:
+                file.write(f"{node.node_id} {node.node_id}\n")
+
+            print("The key is searched before!")
+
+            hashed_key = self.hash_function(data)
+
+            found_data = node.data.get(hashed_key, None)
+
+            counters_list.append(1)
+
+        except KeyError as e:
+
+            hashed_key = self.hash_function(data)
+
+            print(f'[*]Searching  \'{data}\' with key {hashed_key}')
+            node = self.first_node
+
+            routing_counter = 1
+
+            node = node.routing(hashed_key, routing_counter, counters_list)
+
+            found_data = node.data.get(hashed_key, None)
+
+            self.keys_map[data] = node
+
+        if found_data != None:
+            print(
+                f'[+]Found \'{data}\' in node {node.node_id} with key {hashed_key}')
+        else:
+            print(f'[-]\'{data}\' not exist in the network')
+
 
     def insert_data(self, key):
         node = self.first_node
