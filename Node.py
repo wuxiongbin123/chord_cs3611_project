@@ -35,6 +35,9 @@ class Node(object):
         # find predecessor of successor
         pred_node = succ_node.predecessor
 
+        with open("edges_list.txt", 'a') as file:
+            file.write(f"{pred_node.node_id} {succ_node.node_id}\n")
+
         # insert node in the right place on the network
         self.find_node_place(pred_node, succ_node)
 
@@ -42,6 +45,8 @@ class Node(object):
         self.fix_fingers()
 
         self.take_successor_keys()
+
+
 
     def leave(self):
         #fix succ and pred before leaving
@@ -82,6 +87,7 @@ class Node(object):
             temp_node = self.find_successor(self.node_id + 2 ** i)
 
             self.fingers_table[i] = temp_node
+
 
     ################################################################################################################
     # return closest preceding node
@@ -140,6 +146,21 @@ class Node(object):
             ans = succ.routing(key, routing_counter + 1, counters_list)
 
             return ans
+
+    def find_successor_with_path(self, key, path=None):
+        if path is None:
+            path = []
+        path.append(self.node_id)
+
+        if self.node_id == key:
+            return self, path
+
+        if self.distance(self.node_id, key) <= self.distance(self.successor.node_id, key):
+            path.append(self.successor.node_id)
+            return self.successor, path
+        else:
+            next_node = self.closest_preceding_node(self, key)
+            return next_node.find_successor_with_path(key, path)
 
     ################################################################################################################
 

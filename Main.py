@@ -32,7 +32,8 @@ def show_menu(chord_net, node_ids):
         print('5.Print network info')
         print('6.Delete node from network')
         print('7.Experiment')
-        print('8.Exit')
+        print('8.Find data with path in the network')
+        print('9.Exit')
         print('================================================')
 
         choice = input('Select an operation: ')
@@ -113,9 +114,16 @@ def show_menu(chord_net, node_ids):
                 sum += counters_list[i]
             print(f"Average jumps is {float(sum) / len(counters_list)}")
 
-
-
         elif (choice == '8'):
+            query = input('[->]Search data with path: ')
+            start_time = time.time()
+
+            chord_net.find_data_with_path(query)
+            time_elapsed(start_time, 'search data with path')
+            pass
+
+
+        elif (choice == '9'):
             sys.exit(0)
 
         print('\n')
@@ -123,6 +131,8 @@ def show_menu(chord_net, node_ids):
 
 def create_network():
     with open(f"nodes_list.txt", "w") as file:
+        pass
+    with open("edges_list.txt", "w") as file:
         pass
     sys.setrecursionlimit(10000000)
 

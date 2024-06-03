@@ -260,5 +260,22 @@ class Network:
     def periodic_fix(self):
         threading.Timer(15, self.fix_network_fingers).start()
 
+    def find_data_with_path(self, data):
+        hashed_key = self.hash_function(data)
+        print(f'[*]Searching  \'{data}\' with key {hashed_key}')
+        node = self.first_node
+
+        node, path = node.find_successor_with_path(hashed_key)
+
+        found_data = node.data.get(hashed_key, None)
+
+        if found_data is not None:
+            print(
+                f'[+]Found \'{data}\' in node {node.node_id} with key {hashed_key}')
+        else:
+            print(f'[-]\'{data}\' not exist in the network')
+
+        print(f'Path: {" -> ".join(map(str, path))}')
+        print()
 
 ################################################################################################################
