@@ -1,13 +1,13 @@
-
-class Node(object):    #创建Node类
+class Node(object):  # 创建Node类
     m = 0
     ring_size = 2 ** m
+
     def __init__(self, node_id, m):
         self.node_id = node_id
         self.predecessor = self
         self.successor = self
         self.data = dict()
-        self.fingers_table = [self]*m
+        self.fingers_table = [self] * m
 
     def __str__(self):
         return f'Node {self.node_id}'
@@ -18,17 +18,15 @@ class Node(object):    #创建Node类
     def print_fingers_table(self):
         # 打印当前节点ID、其后继节点ID以及前驱节点ID
         print(f'节点: {self.node_id} 的后继节点: {self.successor.node_id} 和前驱节点: {self.predecessor.node_id}')
-        
+
         # 打印手指表头部信息
         print('手指表:')
-        
+
         # 遍历手指表，并打印每个条目的起始位置和指向的节点ID
         for i in range(self.m):
             start = (self.node_id + 2 ** i) % self.ring_size
             target_node_id = self.fingers_table[i].node_id
             print(f'{start} : {target_node_id}')
-
-
 
     # 将新节点加入网络
     def join(self, node):
@@ -47,17 +45,15 @@ class Node(object):    #创建Node类
         # 将新节点的后继节点的键值对迁移到新节点
         self.take_successor_keys()
 
-
     def leave(self):
-        #在离开前修复前驱和后继节点的指针
+        # 在离开前修复前驱和后继节点的指针
         self.predecessor.successor = self.successor
         self.predecessor.fingers_table[0] = self.successor
         self.successor.predecessor = self.predecessor
 
-         # 将本节点的键值对传递给后继节点
+        # 将本节点的键值对传递给后继节点
         for key in sorted(self.data.keys()):
             self.successor.data[key] = self.data[key]
-
 
     # 在网络中找到新节点的适当位置并插入
     def find_node_place(self, pred_node, succ_node):
@@ -87,17 +83,15 @@ class Node(object):    #创建Node类
         for key in keys_to_transfer:
             del self.successor.data[key]
 
-
     # 更新手指表中的条目
     def fix_fingers(self):
         # 遍历手指表的每个条目
         for i in range(len(self.fingers_table)):
             # 寻找当前节点ID加上2的i次幂的节点后继
             finger_successor = self.find_successor(self.node_id + 2 ** i)
-            
+
             # 更新手指表中的第i个条目
             self.fingers_table[i] = finger_successor
-
 
     # 返回离给定哈希键最近的先行节点
     def closest_preceding_node(self, node, hashed_key):
@@ -105,7 +99,7 @@ class Node(object):    #创建Node类
         for i in range(len(node.fingers_table) - 1, -1, -1):
             # 获取当前手指表条目的节点ID
             current_finger_node_id = node.fingers_table[i].node_id
-            
+
             # 检查当前手指表条目的节点ID是否在查询节点ID和哈希键之间
             # 即检查距离当前手指表条目的节点ID到哈希键的距离是否小于查询节点ID到哈希键的距离
             if self.distance(current_finger_node_id, hashed_key) < self.distance(node.node_id, hashed_key):
@@ -138,7 +132,7 @@ class Node(object):    #创建Node类
             return self.closest_preceding_node(self, key).find_successor(key)
 
     # 查找负责给定键的节点，并记录查找路径
-    def find_successor_with_path(self, key, path=None):
+    def find_successor_with_path(self, key, path=None, routing_counter=0, counters_list=[]):
         # 如果路径列表为空，初始化路径
         if path is None:
             path = []
@@ -147,14 +141,16 @@ class Node(object):    #创建Node类
 
         # 如果当前节点就是键的负责节点，返回当前节点和路径
         if self.node_id == key:
+            counters_list.append(routing_counter)
             return self, path
 
         # 如果当前节点的后继节点更接近键，将后继节点添加到路径中并返回
         if self.distance(self.node_id, key) <= self.distance(self.successor.node_id, key):
+            counters_list.append(routing_counter)
             path.append(self.successor.node_id)
             return self.successor, path
         else:
             # 否则，找到离键最近的先行节点，并递归查找键的后继节点和路径
             next_node = self.closest_preceding_node(self, key)
-            return next_node.find_successor_with_path(key, path)
+            return next_node.find_successor_with_path(key, path, routing_counter + 1, counters_list)
 

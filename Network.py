@@ -21,6 +21,8 @@ class NetworkError(Exception):
 class Network:
     # 初始化网络类
     def __init__(self, m, node_ids):
+        # 增加本地缓存的key，id键值对
+        self.keys_map = {}
         # 初始化节点列表
         self.nodes = []
         # 设置哈希环的大小为2的m次幂
@@ -217,10 +219,9 @@ class Network:
 
     # 生成假数据的函数
     def generate_fake_data(self, num):
-        # 定义文件扩展名列表
-        extensions = ['.txt', '.png', '.doc', '.mov', '.jpg', '.py']
+
         # 生成假文件名列表
-        files = [f'file_{i}' + choice(extensions) for i in range(num)]
+        files = [f'file_{i}' for i in range(num)]
         # 定义开始时间
         start_time = time.time()
         # 遍历假文件名列表，调用插入数据的函数
@@ -273,6 +274,45 @@ class Network:
         # 创建一个定时器，每15秒执行一次修复手指表的函数
         threading.Timer(15, self.fix_network_fingers).start()
 
+    def experiment(self, data ,counters_list):
+        try:
 
+            node = self.keys_map[data]
+            with open('routingPath.txt', 'a') as file:
+                file.write(f"{node.node_id} {node.node_id}\n")
+
+            print("The key is searched before!")
+
+            hashed_key = self.hash_function(data)
+
+            found_data = node.data.get(hashed_key, None)
+
+            counters_list.append(1)
+
+        except KeyError as e:
+
+            # 计算数据的哈希键
+            hashed_key = self.hash_function(data)
+            # 打印查找数据的哈希键
+            print(f'[*]正在查找 \'{data}\'，键为 {hashed_key}')
+            # 初始化当前节点为网络中的第一个节点
+            node = self.first_node
+            # 调用当前节点的查找后继节点方法，并返回路径
+            routing_counter = 1
+            node, path = node.find_successor_with_path(hashed_key, None, routing_counter, counters_list)
+            # 查找数据
+            found_data = node.data.get(hashed_key, None)
+            # 如果找到数据，打印找到的数据和对应的节点ID，以及路径
+
+            #缓存对应的键值和节点对
+            self.keys_map[data] = node
+
+            if found_data is not None:
+                print(f'[+]在节点 {node.node_id} 中找到 \'{data}\'，键为 {hashed_key}')
+                print(f'路径: {" -> ".join(map(str, path))}')
+                print()
+            # 如果没有找到数据，打印错误信息
+            else:
+                print(f'[-]\'{data}\' 在网络中不存在')
 
 ################################################################################################################

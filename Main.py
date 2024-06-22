@@ -8,7 +8,7 @@ import threading
 import pydotplus
 from PIL import Image
 import pyfiglet
-
+import random
 
 from Node import Node
 from Network import Network
@@ -39,7 +39,8 @@ def show_menu(chord_net, node_ids):
         print('5.打印网络信息')
         print('6.从网络中删除节点')
         print('7.在网络中查找数据（显示路径）')
-        print('8.退出')  # 新增选项
+        print('8.实验')
+        print('9.退出')  # 新增选项
         print('================================================')
 
         # 获取用户的选择
@@ -106,6 +107,28 @@ def show_menu(chord_net, node_ids):
             time_elapsed(start_time, '搜索数据并显示路径')
 
         elif choice == '8':
+            # Experiment
+
+            counters_list = []
+
+            for i in range(10000):
+                with open("routingPath.txt", "w") as file:
+                    pass
+                query = "file_" + f"{round(random.gauss(500, 10000))}"
+                start_time = time.time()
+
+                chord_net.experiment(query, counters_list)
+                print(f"The {i + 1}-th experiment use {counters_list[i]} times")
+
+                time_elapsed(start_time, 'search data')
+
+            # compute the average.
+            sum = 0
+            for i in range(len(counters_list)):
+                sum += counters_list[i]
+            print(f"Average jumps is {float(sum) / len(counters_list)}")
+
+        elif choice == '9':
             # 退出程序
             sys.exit(0)
 
